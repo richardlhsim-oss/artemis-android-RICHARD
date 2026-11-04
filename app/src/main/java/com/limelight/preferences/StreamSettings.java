@@ -298,7 +298,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
             prefs.edit()
                     .putInt(PreferenceConfiguration.BITRATE_PREF_STRING,
-                            PreferenceConfiguration.getDefaultBitrate(res, fps))
+                            PreferenceConfiguration.getDefaultBitrate(getActivity()))
                     .apply();
         }
 
@@ -419,7 +419,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 category_gamepad_settings.removePreference(findPreference("seekbar_vibrate_fallback_strength"));
             }
 
-            String diy = PreferenceManager.getDefaultSharedPreferences(activity).getString("edit_diy_w_h","");
+            String diy = PreferenceManager.getDefaultSharedPreferences(activity).getString("edit_diy_w_h","1800x1100");
             if(!TextUtils.isEmpty(diy)){
                 String[] diys=diy.split("x");
                 if(diys.length==2){

@@ -10,7 +10,7 @@
         android:title="@string/category_video_settings"
         app:iconSpaceReserved="false">
         <ListPreference
-            android:defaultValue="1920x1080"
+            android:defaultValue="1800x1100"
             android:entries="@array/resolution_names"
             android:entryValues="@array/resolution_values"
             android:key="list_resolution"
@@ -100,7 +100,7 @@
             app:iconSpaceReserved="false" />
 
         <EditTextPreference
-            android:defaultValue="1920x1080"
+            android:defaultValue="1800x1100"
             android:dialogTitle="@string/dialog_custom_resolution"
             android:key="edit_diy_w_h"
             android:singleLine="true"
@@ -109,7 +109,7 @@
             app:iconSpaceReserved="false" />
 
         <EditTextPreference
-            android:defaultValue="20"
+            android:defaultValue="10"
             android:dialogMessage="@string/dialog_manual_enter_bitrate"
             android:dialogTitle="@string/title_manual_enter_bitrate"
             android:key="edit_diy_bitrate"
@@ -278,6 +278,46 @@
             android:summary="@string/summary_touchscreen_mode"
             android:title="@string/title_touchscreen_mode"
             app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_show_scroll_strip"
+            android:summary="@string/summary_checkbox_show_scroll_strip"
+            android:title="@string/title_checkbox_show_scroll_strip"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_invert_scroll_strip"
+            android:summary="@string/summary_checkbox_invert_scroll_strip"
+            android:title="@string/title_checkbox_invert_scroll_strip"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_show_mouse_buttons"
+            android:summary="@string/summary_checkbox_show_mouse_buttons"
+            android:title="@string/title_checkbox_show_mouse_buttons"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_show_handle_keyboard"
+            android:summary="@string/summary_checkbox_show_handle_keyboard"
+            android:title="@string/title_checkbox_show_handle_keyboard"
+            app:iconSpaceReserved="false" />
+
+        <com.limelight.preferences.SeekBarPreference
+            android:key="seekbar_desktop_overlay_opacity"
+            android:defaultValue="65"
+            android:dialogMessage="@string/summary_desktop_overlay_opacity"
+            android:max="100"
+            android:summary="@string/summary_desktop_overlay_opacity"
+            android:text="@string/suffix_percent"
+            android:title="@string/title_desktop_overlay_opacity"
+            app:iconSpaceReserved="false"
+            seekbar:min="10"
+            seekbar:step="5" />
 
         <CheckBoxPreference
             android:defaultValue="true"

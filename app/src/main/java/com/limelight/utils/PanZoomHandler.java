@@ -22,6 +22,8 @@ public class PanZoomHandler {
     private static final int GESTURE_CLAIMED = 2;
     private static final int GESTURE_REJECTED = 3;
     private static final int GESTURE_PANNING = 4;
+    // A touch shortly after a pinch: a tap still clicks, a drag pans
+    private static final int GESTURE_PAN_CANDIDATE = 5;
 
     private static final float IMPLICIT_DECISION_SLOP_DP = 24;
     private static final float FOLLOW_CURSOR_MARGIN_DP = 48;
@@ -43,6 +45,7 @@ public class PanZoomHandler {
     private long lastPinchEndTime;
     private boolean panPrimed;
     private float panPrevRawX, panPrevRawY;
+    private float candidateDownRawX, candidateDownRawY;
 
     private final Game game;
     private final View streamView;
@@ -89,13 +92,18 @@ public class PanZoomHandler {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (isZoomed() && event.getEventTime() - lastPinchEndTime < PINCH_FOLLOW_UP_PAN_MS) {
-                    startFollowUpPan();
-                    return IMPLICIT_CONSUMED;
+                    implicitState = GESTURE_PAN_CANDIDATE;
+                    candidateDownRawX = event.getRawX();
+                    candidateDownRawY = event.getRawY();
+                    return IMPLICIT_PASS;
                 }
                 implicitState = GESTURE_IDLE;
                 return IMPLICIT_PASS;
 
             case MotionEvent.ACTION_POINTER_DOWN:
+                if (implicitState == GESTURE_PAN_CANDIDATE) {
+                    implicitState = GESTURE_IDLE;
+                }
                 if (implicitState == GESTURE_PANNING) {
                     // A second finger turns the pan back into a pinch
                     implicitState = GESTURE_CLAIMED;
@@ -120,6 +128,16 @@ public class PanZoomHandler {
                 return IMPLICIT_PASS;
 
             case MotionEvent.ACTION_MOVE:
+                if (implicitState == GESTURE_PAN_CANDIDATE) {
+                    if (Math.hypot(event.getRawX() - candidateDownRawX, event.getRawY() - candidateDownRawY) >
+                            implicitDecisionSlop / 2) {
+                        // It's a drag: pan the view instead of sending input
+                        startFollowUpPan();
+                        continueFollowUpPan(event);
+                        return IMPLICIT_CLAIM_STARTED;
+                    }
+                    return IMPLICIT_PASS;
+                }
                 if (implicitState == GESTURE_UNDECIDED) {
                     if (event.getPointerCount() < 2) {
                         return IMPLICIT_PASS;

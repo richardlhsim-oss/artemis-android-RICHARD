@@ -117,7 +117,7 @@ public class PreferenceConfiguration {
     private static final String SEEKBAR_TRACKPAD_DRAG_DROP_THRESHOLD = "seekbar_trackpad_drag_drop_threshold";
     private static final String CHECKBOX_TRACKPAD_SWAP_AXIS = "checkbox_trackpad_swap_axis";
 
-    static final String DEFAULT_RESOLUTION = "1920x1080";
+    static final String DEFAULT_RESOLUTION = "1800x1100";
     static final String DEFAULT_FPS = "60";
     private static final int DEFAULT_BITRATE_KBPS = 10000;
     private static final boolean DEFAULT_ENFORCE_DISPLAY_MODE = false;
@@ -269,6 +269,11 @@ public class PreferenceConfiguration {
 
     //物理光标捕获
     public boolean enableMouseLocalCursor;
+    public boolean showMouseButtons;
+    public boolean showScrollStrip;
+    public boolean showHandleKeyboard;
+    public boolean invertScrollStrip;
+    public int desktopOverlayOpacity;
 
     //禁用内置的特殊指令
     public boolean enableClearDefaultSpecial;
@@ -834,6 +839,11 @@ public class PreferenceConfiguration {
         config.enableTouchSensitivity=prefs.getBoolean("checkbox_enable_touch_sensitivity",false);
 
         config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",true);
+        config.showMouseButtons = prefs.getBoolean("checkbox_show_mouse_buttons", false);
+        config.showScrollStrip = prefs.getBoolean("checkbox_show_scroll_strip", true);
+        config.showHandleKeyboard = prefs.getBoolean("checkbox_show_handle_keyboard", true);
+        config.invertScrollStrip = prefs.getBoolean("checkbox_invert_scroll_strip", false);
+        config.desktopOverlayOpacity = prefs.getInt("seekbar_desktop_overlay_opacity", 65);
 
         config.enablePerfOverlayLiteDialog=prefs.getBoolean("checkbox_enable_perf_overlay_lite_dialog",false);
 

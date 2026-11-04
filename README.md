@@ -20,9 +20,13 @@ This fork adds remote desktop features carried over from [moonlight-android-RICH
 - **Two-finger double-tap** toggles between full view and 2.5x zoom at that point.
 - **Mouse clicks track the zoomed view:** with the local mouse cursor, clicks land exactly where the cursor is while zoomed, and the view pans to follow the cursor to the screen edges.
 - **Modifier bar above the soft keyboard:** sticky Win, Shift, Ctrl and Alt, plus Tab, a text input mode toggle (**Aa**), the game menu, and a function key pad (F1-F12, Esc, Print Screen, navigation and arrow keys, Enter, Paste, common shortcuts, rotate screen).
+- **Quick menu handle (right edge):** the arrow opens a quick menu with the keyboard, touch mode, performance stats, the game menu, privacy screen (needs the PrivacyScreen helper on the host), move overlays and disconnect. The keyboard icon on the handle opens the soft keyboard.
+- **Scroll bar (right edge):** drag to scroll. Optional left/right mouse buttons at the bottom, with drag lock on double-tap.
+- **Move overlays:** from the quick menu, drag the handle, scroll bar or mouse buttons to a new place, then tap one without dragging to save. Opacity and which overlays show are set in the input settings.
+- **Taps right after a pinch still click.** Only a drag within 1 second of a pinch pans the view.
 - **Text input mode (voice / swipe):** swipe typing, autocorrect and voice dictation type into the host. Toggle with **Aa** on the modifier bar or from the game menu.
 
-Defaults for a fresh install: 1080p, 10 Mbps, stretch video, natural trackpad touch mode, local mouse cursor. Clipboard sync uses Artemis's built-in Apollo support. Defaults only apply to settings that have never been saved.
+Defaults for a fresh install: custom 1800x1100 resolution, 10 Mbps (also kept when the resolution changes), scroll bar on, mouse buttons off, stretch video, natural trackpad touch mode, local mouse cursor. Clipboard sync uses Artemis's built-in Apollo support. Defaults only apply to settings that have never been saved.
 
 # Features
 

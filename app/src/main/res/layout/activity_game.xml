@@ -91,6 +91,191 @@
 
 
     <LinearLayout
+        android:id="@+id/quickMenuHandle"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginTop="180dp"
+        android:layout_marginEnd="8dp"
+        android:padding="3dp"
+        android:alpha="0.65"
+        android:background="@drawable/quick_menu_handle_bg"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/quickMenuHandleChevron"
+            android:layout_width="38dp"
+            android:layout_height="34dp"
+            android:padding="8dp"
+            android:focusable="false"
+            android:src="@drawable/ic_chevron_left"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_open_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuHandleKeyboard"
+            android:layout_width="38dp"
+            android:layout_height="34dp"
+            android:padding="7dp"
+            android:focusable="false"
+            android:src="@drawable/ic_keyboard"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_keyboard_description" />
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/quickMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginTop="180dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:padding="4dp"
+        android:scrollbars="none"
+        android:background="@drawable/quick_menu_bg"
+        android:visibility="gone">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+        <ImageButton
+            android:id="@+id/quickMenuKeyboardButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_keyboard"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_keyboard_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuCursorModeButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_mouse"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_cursor_mode_description" />
+
+
+
+
+        <ImageButton
+            android:id="@+id/quickMenuStatsButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_stats"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_stats_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuGameMenuButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_tune"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_game_menu_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuPrivacyButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_visibility_off"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_privacy_description" />
+
+
+        <ImageButton
+            android:id="@+id/quickMenuMoveOverlaysButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_open_with"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_move_overlays_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuDisconnectButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_power"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_disconnect_description" />
+
+        <ImageButton
+            android:id="@+id/quickMenuCollapseButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:focusable="false"
+            android:src="@drawable/ic_chevron_right"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/quick_menu_close_description" />
+    </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/mouseButtonBar"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:alpha="0.65"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/mouseLeftButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="20dp"
+            android:padding="12dp"
+            android:focusable="false"
+            android:src="@drawable/ic_mouse_left"
+            android:background="@drawable/quick_menu_handle_bg"
+            android:contentDescription="@string/mouse_left_button_description" />
+
+        <ImageButton
+            android:id="@+id/mouseRightButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:padding="12dp"
+            android:focusable="false"
+            android:src="@drawable/ic_mouse_right"
+            android:background="@drawable/quick_menu_handle_bg"
+            android:contentDescription="@string/mouse_right_button_description" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/scrollStrip"
+        android:layout_width="22dp"
+        android:layout_height="170dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="10dp"
+        android:alpha="0.65"
+        android:src="@drawable/ic_scroll_ridges"
+        android:scaleType="center"
+        android:focusable="false"
+        android:background="@drawable/scroll_wheel_bg"
+        android:contentDescription="@string/scroll_strip_description"
+        android:visibility="gone" />
+
+    <LinearLayout
         android:id="@+id/modifierBar"
         android:orientation="horizontal"
         android:layout_width="match_parent"

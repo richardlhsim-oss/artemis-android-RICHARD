@@ -35,6 +35,7 @@ import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamView;
 import com.limelight.utils.DesktopKeyboardBar;
+import com.limelight.utils.DesktopOverlays;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.PanZoomHandler;
 import com.limelight.utils.ServerHelper;
@@ -259,6 +260,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     public GameMenuCallbacks gameMenuCallbacks;
     private DesktopKeyboardBar keyboardBar;
+    private DesktopOverlays desktopOverlays;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -682,6 +684,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         gameMenuCallbacks = new GameMenu(this, conn);
         keyboardBar = new DesktopKeyboardBar(this, conn, keyboardTranslator, streamView,
                 () -> showGameMenu(null));
+        desktopOverlays = new DesktopOverlays(this, conn, keyboardTranslator, prefConfig);
     }
 
     public boolean isTextInputModeActive() {
@@ -822,6 +825,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                 hideGameMenu();
 
+                if (desktopOverlays != null) {
+                    desktopOverlays.setHidden(true);
+                }
+
                 performanceOverlayView.setVisibility(View.GONE);
                 notificationOverlayView.setVisibility(View.GONE);
 
@@ -850,6 +857,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                 if (prefConfig.enablePerfOverlay) {
                     performanceOverlayView.setVisibility(View.VISIBLE);
+                }
+
+                if (desktopOverlays != null) {
+                    desktopOverlays.setHidden(false);
                 }
 
                 notificationOverlayView.setVisibility(requestedNotificationOverlayVisibility);
