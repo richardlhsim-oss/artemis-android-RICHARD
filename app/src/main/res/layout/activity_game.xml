@@ -89,4 +89,201 @@
 
     </LinearLayout>
 
+
+    <LinearLayout
+        android:id="@+id/modifierBar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_gravity="bottom"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:background="#F2262B33"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/modifierWinButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="12dp"
+            android:focusable="false"
+            android:src="@drawable/ic_windows"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/modifier_win_description" />
+
+        <Button
+            android:id="@+id/modifierShiftButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_shift"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
+            android:id="@+id/modifierCtrlButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_ctrl"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
+            android:id="@+id/modifierAltButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_alt"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
+            android:id="@+id/modifierTabButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_tab"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
+            android:id="@+id/modifierTextModeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_text_mode"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/modifierSettingsButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="11dp"
+            android:focusable="false"
+            android:src="@drawable/ic_settings"
+            android:tint="#EEEEEE"
+            android:scaleType="fitCenter"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/modifier_settings_description" />
+
+        <ImageButton
+            android:id="@+id/modifierPadToggleButton"
+            android:layout_width="48dp"
+            android:layout_height="44dp"
+            android:padding="11dp"
+            android:focusable="false"
+            android:src="@drawable/ic_keyboard"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/modifier_pad_toggle_description" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/functionPad"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_gravity="bottom"
+        android:padding="4dp"
+        android:background="#F21C2028"
+        android:visibility="gone">
+
+        <LinearLayout style="@style/FunctionPadRow">
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF1" android:text="F1" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF2" android:text="F2" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF3" android:text="F3" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF4" android:text="F4" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcEsc" android:text="Esc" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcPrScr" android:text="PrScr" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcHome" android:text="Home" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcPgUp" android:text="Pg Up" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/FunctionPadRow">
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF5" android:text="F5" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF6" android:text="F6" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF7" android:text="F7" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF8" android:text="F8" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcTab" android:text="Tab" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcDel" android:text="Del" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcEnd" android:text="End" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcPgDn" android:text="Pg Dn" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/FunctionPadRow">
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF9" android:text="F9" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF10" android:text="F10" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF11" android:text="F11" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcF12" android:text="F12" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcIns" android:text="Ins" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcPaste" android:text="Paste" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcEnter" android:text="Enter" />
+            <View style="@style/FunctionPadSpacer" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/FunctionPadRow">
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcCtrlZ" android:text="Ctrl+Z" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcWinD" android:text="Win+D" />
+            <ImageButton style="@style/FunctionPadKey" android:id="@+id/funcLock"
+                android:src="@drawable/ic_lock" android:scaleType="fitCenter" android:padding="12dp"
+                android:contentDescription="@string/func_lock_description" />
+            <ImageButton style="@style/FunctionPadKey" android:id="@+id/funcRotate"
+                android:src="@drawable/ic_screen_rotate" android:scaleType="fitCenter" android:padding="12dp"
+                android:contentDescription="@string/func_rotate_description" />
+            <View style="@style/FunctionPadSpacer" />
+            <View style="@style/FunctionPadSpacer" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcUp" android:text="▲" />
+            <View style="@style/FunctionPadSpacer" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/FunctionPadRow">
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcCtrlC" android:text="Ctrl-C" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcCtrlX" android:text="Ctrl-X" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcCtrlV" android:text="Ctrl-V" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcCtrlA" android:text="Ctrl+A" />
+            <View style="@style/FunctionPadSpacer" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcLeft" android:text="◄" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcDown" android:text="▼" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcRight" android:text="►" />
+        </LinearLayout>
+    </LinearLayout>
+
+
 </merge>

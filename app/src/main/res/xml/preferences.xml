@@ -10,7 +10,7 @@
         android:title="@string/category_video_settings"
         app:iconSpaceReserved="false">
         <ListPreference
-            android:defaultValue="1280x720"
+            android:defaultValue="1920x1080"
             android:entries="@array/resolution_names"
             android:entryValues="@array/resolution_values"
             android:key="list_resolution"
@@ -91,7 +91,7 @@
             seekbar:step="1" />
 
         <ListPreference
-            android:defaultValue="fit"
+            android:defaultValue="stretch"
             android:entries="@array/video_scale_mode_names"
             android:entryValues="@array/video_scale_mode_values"
             android:key="list_video_scale_mode"
@@ -271,7 +271,7 @@
         android:title="@string/category_input_settings"
         app:iconSpaceReserved="false">
         <ListPreference
-            android:defaultValue="0"
+            android:defaultValue="2"
             android:entries="@array/mouse_mode_names"
             android:entryValues="@array/mouse_mode_values"
             android:key="mouse_mode_list"
@@ -280,7 +280,14 @@
             app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
+            android:key="checkbox_clipboard_sync_helper"
+            android:summary="@string/summary_checkbox_clipboard_sync_helper"
+            android:title="@string/title_checkbox_clipboard_sync_helper"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="checkbox_mouse_local_cursor"
             android:summary="@string/summary_checkbox_mouse_local_cursor"
             android:title="@string/title_checkbox_mouse_local_cursor"

@@ -11,6 +11,20 @@ Artemis is currently the best fork of Moonlight with loads of optimizations for 
 
 A more seamless experience with virtual display will be Artemis paired with [Apollo](https://github.com/ClassicOldSong/Apollo).
 
+# Desktop customizations in this fork
+
+This fork adds remote desktop features carried over from [moonlight-android-RICHARD](https://github.com/richardlhsim-oss/moonlight-android-RICHARD):
+
+- **Pinch to zoom at any time**, without entering zoom mode. Two-finger scrolls and taps still go to the host.
+- **One-finger pan after a pinch:** lift one pinch finger and the other pans, or put a finger down within 1 second of the pinch ending.
+- **Two-finger double-tap** toggles between full view and 2.5x zoom at that point.
+- **Mouse clicks track the zoomed view:** with the local mouse cursor, clicks land exactly where the cursor is while zoomed, and the view pans to follow the cursor to the screen edges.
+- **Modifier bar above the soft keyboard:** sticky Win, Shift, Ctrl and Alt, plus Tab, a text input mode toggle (**Aa**), the game menu, and a function key pad (F1-F12, Esc, Print Screen, navigation and arrow keys, Enter, Paste, common shortcuts, rotate screen).
+- **Text input mode (voice / swipe):** swipe typing, autocorrect and voice dictation type into the host. Toggle with **Aa** on the modifier bar or from the game menu.
+- **Clipboard sync with Sunshine-based hosts:** two-way text sync through the ClipboardSync helper in [tools/clipboard-sync](tools/clipboard-sync). Turn it off with **Sync clipboard with PC helper** in the input settings.
+
+Defaults for a fresh install: 1080p, 10 Mbps, stretch video, natural trackpad touch mode, local mouse cursor, clipboard helper sync on. Defaults only apply to settings that have never been saved.
+
 # Features
 
 If you switch back to the main stream version, you'll be missing the following awesome features which are very unlikely to be added there:

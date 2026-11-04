@@ -12,6 +12,38 @@ import com.limelight.preferences.PreferenceConfiguration;
 public class PanZoomHandler {
     static private final float MAX_SCALE = 10.0f;
 
+    // Results of filterImplicitGesture()
+    public static final int IMPLICIT_PASS = 0;
+    public static final int IMPLICIT_CONSUMED = 1;
+    public static final int IMPLICIT_CLAIM_STARTED = 2;
+
+    private static final int GESTURE_IDLE = 0;
+    private static final int GESTURE_UNDECIDED = 1;
+    private static final int GESTURE_CLAIMED = 2;
+    private static final int GESTURE_REJECTED = 3;
+    private static final int GESTURE_PANNING = 4;
+
+    private static final float IMPLICIT_DECISION_SLOP_DP = 24;
+    private static final float FOLLOW_CURSOR_MARGIN_DP = 48;
+    private static final float SMART_ZOOM_SCALE = 2.5f;
+    private static final int TWO_FINGER_TAP_TIME_MS = 250;
+    private static final int SMART_ZOOM_DOUBLE_TAP_TIME_MS = 400;
+    // After a pinch, one finger pans if it is down within this window
+    // (or is still down from the pinch)
+    private static final int PINCH_FOLLOW_UP_PAN_MS = 1000;
+
+    private final float implicitDecisionSlop;
+    private final float followCursorMargin;
+    private int implicitState = GESTURE_IDLE;
+    private long implicitStartTime;
+    private float implicitStartSpan, implicitStartFocusX, implicitStartFocusY;
+    private float implicitPrevSpan, implicitPrevFocusX, implicitPrevFocusY;
+    private long lastTwoFingerTapTime;
+    private float lastTwoFingerTapX, lastTwoFingerTapY;
+    private long lastPinchEndTime;
+    private boolean panPrimed;
+    private float panPrevRawX, panPrevRawY;
+
     private final Game game;
     private final View streamView;
     private final PreferenceConfiguration prefConfig;
@@ -29,6 +61,9 @@ public class PanZoomHandler {
         this.streamView = streamView;
         this.prefConfig = prefConfig;
         this.isTopMode = prefConfig.alignDisplayTopCenter;
+        float density = context.getResources().getDisplayMetrics().density;
+        implicitDecisionSlop = IMPLICIT_DECISION_SLOP_DP * density;
+        followCursorMargin = FOLLOW_CURSOR_MARGIN_DP * density;
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
         gestureDetector = new GestureDetector(context, new GestureListener());
 
@@ -40,6 +75,233 @@ public class PanZoomHandler {
     public void handleTouchEvent(MotionEvent motionEvent) {
         scaleGestureDetector.onTouchEvent(motionEvent);
         gestureDetector.onTouchEvent(motionEvent);
+    }
+
+    public boolean isZoomed() {
+        return scaleFactor > 1.01f;
+    }
+
+    // Watches finger gestures outside of zoom mode and claims those that look
+    // like a pinch, so zooming works without switching modes. Two-finger
+    // scrolls and taps pass through. Returns IMPLICIT_CLAIM_STARTED when a
+    // pinch is first recognized (the caller should cancel touch handling).
+    public int filterImplicitGesture(MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                if (isZoomed() && event.getEventTime() - lastPinchEndTime < PINCH_FOLLOW_UP_PAN_MS) {
+                    startFollowUpPan();
+                    return IMPLICIT_CONSUMED;
+                }
+                implicitState = GESTURE_IDLE;
+                return IMPLICIT_PASS;
+
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if (implicitState == GESTURE_PANNING) {
+                    // A second finger turns the pan back into a pinch
+                    implicitState = GESTURE_CLAIMED;
+                }
+                if (implicitState == GESTURE_CLAIMED) {
+                    if (event.getPointerCount() == 2) {
+                        primePinch(event);
+                    }
+                    return IMPLICIT_CONSUMED;
+                }
+                if (implicitState == GESTURE_IDLE && event.getPointerCount() == 2) {
+                    implicitState = GESTURE_UNDECIDED;
+                    implicitStartTime = event.getEventTime();
+                    implicitStartSpan = span(event);
+                    implicitStartFocusX = focusX(event);
+                    implicitStartFocusY = focusY(event);
+                }
+                else if (implicitState == GESTURE_UNDECIDED) {
+                    // A third finger is not a pinch (e.g. the keyboard gesture)
+                    implicitState = GESTURE_REJECTED;
+                }
+                return IMPLICIT_PASS;
+
+            case MotionEvent.ACTION_MOVE:
+                if (implicitState == GESTURE_UNDECIDED) {
+                    if (event.getPointerCount() < 2) {
+                        return IMPLICIT_PASS;
+                    }
+                    float spanDelta = Math.abs(span(event) - implicitStartSpan);
+                    float focusDelta = (float) Math.hypot(focusX(event) - implicitStartFocusX,
+                            focusY(event) - implicitStartFocusY);
+                    if (spanDelta > implicitDecisionSlop && spanDelta > focusDelta) {
+                        implicitState = GESTURE_CLAIMED;
+                        primePinch(event);
+                        return IMPLICIT_CLAIM_STARTED;
+                    }
+                    else if (focusDelta > implicitDecisionSlop * 1.5f && focusDelta > spanDelta * 2) {
+                        // Fingers moving together: this is a scroll
+                        implicitState = GESTURE_REJECTED;
+                        return IMPLICIT_PASS;
+                    }
+                    // Hold the gesture back until we know what it is
+                    return IMPLICIT_CONSUMED;
+                }
+                if (implicitState == GESTURE_CLAIMED) {
+                    if (event.getPointerCount() >= 2) {
+                        continuePinch(event);
+                    }
+                    return IMPLICIT_CONSUMED;
+                }
+                if (implicitState == GESTURE_PANNING) {
+                    if (event.getPointerCount() == 1) {
+                        continueFollowUpPan(event);
+                    }
+                    return IMPLICIT_CONSUMED;
+                }
+                return IMPLICIT_PASS;
+
+            case MotionEvent.ACTION_POINTER_UP:
+                if (implicitState == GESTURE_CLAIMED || implicitState == GESTURE_PANNING) {
+                    if (event.getPointerCount() == 2) {
+                        // One pinch finger lifted: the remaining one pans
+                        startFollowUpPan();
+                    }
+                    return IMPLICIT_CONSUMED;
+                }
+                if (implicitState == GESTURE_UNDECIDED) {
+                    // Released before moving enough to decide: it was a tap
+                    implicitState = GESTURE_REJECTED;
+                    if (event.getEventTime() - implicitStartTime < TWO_FINGER_TAP_TIME_MS) {
+                        // Two quick two-finger taps in the same place toggle smart zoom
+                        if (event.getEventTime() - lastTwoFingerTapTime < SMART_ZOOM_DOUBLE_TAP_TIME_MS &&
+                                Math.hypot(implicitStartFocusX - lastTwoFingerTapX,
+                                        implicitStartFocusY - lastTwoFingerTapY) < implicitDecisionSlop * 3) {
+                            lastTwoFingerTapTime = 0;
+                            smartZoomToggle(implicitStartFocusX, implicitStartFocusY);
+                            return IMPLICIT_CLAIM_STARTED;
+                        }
+                        lastTwoFingerTapTime = event.getEventTime();
+                        lastTwoFingerTapX = implicitStartFocusX;
+                        lastTwoFingerTapY = implicitStartFocusY;
+                    }
+                }
+                return IMPLICIT_PASS;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                boolean claimed = implicitState == GESTURE_CLAIMED || implicitState == GESTURE_PANNING;
+                implicitState = GESTURE_IDLE;
+                if (claimed) {
+                    lastPinchEndTime = event.getEventTime();
+                    return IMPLICIT_CONSUMED;
+                }
+                return IMPLICIT_PASS;
+
+            default:
+                return IMPLICIT_PASS;
+        }
+    }
+
+    public void resetImplicitGesture() {
+        implicitState = GESTURE_IDLE;
+        lastPinchEndTime = 0;
+    }
+
+    // Pans the zoomed view so the given point (parent coordinates) stays
+    // inside the visible area with a small margin
+    public void followPoint(float parentX, float parentY) {
+        if (!isZoomed() || parent == null) {
+            return;
+        }
+        float dx = 0, dy = 0;
+        if (parentX < followCursorMargin) {
+            dx = followCursorMargin - parentX;
+        }
+        else if (parentX > parent.getWidth() - followCursorMargin) {
+            dx = parent.getWidth() - followCursorMargin - parentX;
+        }
+        if (parentY < followCursorMargin) {
+            dy = followCursorMargin - parentY;
+        }
+        else if (parentY > parent.getHeight() - followCursorMargin) {
+            dy = parent.getHeight() - followCursorMargin - parentY;
+        }
+        if (dx != 0 || dy != 0) {
+            childX = streamView.getX() + dx;
+            childY = streamView.getY() + dy;
+            constrainToBounds();
+        }
+    }
+
+    private void smartZoomToggle(float focusX, float focusY) {
+        if (parent == null) {
+            parent = (View) streamView.getParent();
+        }
+        float newScale = isZoomed() ? 1.0f : SMART_ZOOM_SCALE;
+        applyScale(newScale, focusX, focusY);
+        constrainToBounds();
+    }
+
+    private void applyScale(float newScaleFactor, float focusX, float focusY) {
+        childX = focusX + (streamView.getX() - focusX) / scaleFactor * newScaleFactor;
+        childY = focusY + (streamView.getY() - focusY) / scaleFactor * newScaleFactor;
+        scaleFactor = newScaleFactor;
+        streamView.setScaleX(scaleFactor);
+        streamView.setScaleY(scaleFactor);
+    }
+
+    private void primePinch(MotionEvent event) {
+        if (parent == null) {
+            parent = (View) streamView.getParent();
+        }
+        implicitPrevSpan = span(event);
+        implicitPrevFocusX = focusX(event);
+        implicitPrevFocusY = focusY(event);
+    }
+
+    private void continuePinch(MotionEvent event) {
+        float span = span(event);
+        float fx = focusX(event);
+        float fy = focusY(event);
+        if (implicitPrevSpan > 0) {
+            float newScale = Math.max(1, Math.min(scaleFactor * (span / implicitPrevSpan), MAX_SCALE));
+            applyScale(newScale, fx, fy);
+            // Pan with the fingers as well
+            childX += fx - implicitPrevFocusX;
+            childY += fy - implicitPrevFocusY;
+            constrainToBounds();
+        }
+        implicitPrevSpan = span;
+        implicitPrevFocusX = fx;
+        implicitPrevFocusY = fy;
+    }
+
+    private void startFollowUpPan() {
+        implicitState = GESTURE_PANNING;
+        // Primed on the first single-finger move, since only then is the
+        // remaining finger guaranteed to be at index 0 for getRawX/Y
+        panPrimed = false;
+    }
+
+    private void continueFollowUpPan(MotionEvent event) {
+        // Raw screen coordinates are unaffected by the view being moved
+        float rawX = event.getRawX();
+        float rawY = event.getRawY();
+        if (panPrimed) {
+            childX = streamView.getX() + rawX - panPrevRawX;
+            childY = streamView.getY() + rawY - panPrevRawY;
+            constrainToBounds();
+        }
+        panPrevRawX = rawX;
+        panPrevRawY = rawY;
+        panPrimed = true;
+    }
+
+    // Events passed to filterImplicitGesture() are in parent coordinates
+    private static float span(MotionEvent e) {
+        return (float) Math.hypot(e.getX(1) - e.getX(0), e.getY(1) - e.getY(0));
+    }
+
+    private static float focusX(MotionEvent e) {
+        return (e.getX(0) + e.getX(1)) / 2;
+    }
+
+    private static float focusY(MotionEvent e) {
+        return (e.getY(0) + e.getY(1)) / 2;
     }
 
     private void updateDimensions() {

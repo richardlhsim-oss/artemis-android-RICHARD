@@ -34,6 +34,8 @@ import com.limelight.preferences.GlPreferences;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamView;
+import com.limelight.utils.ClipboardSync;
+import com.limelight.utils.DesktopKeyboardBar;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.PanZoomHandler;
 import com.limelight.utils.ServerHelper;
@@ -257,6 +259,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     public GameMenuCallbacks gameMenuCallbacks;
+    private DesktopKeyboardBar keyboardBar;
+    private ClipboardSync clipboardSync;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -633,7 +637,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         inputManager.registerInputDeviceListener(keyboardTranslator, null);
 
         // Initialize touch contexts
-        String mouseMode = PreferenceManager.getDefaultSharedPreferences(this).getString("mouse_mode_list", "0");
+        String mouseMode = PreferenceManager.getDefaultSharedPreferences(this).getString("mouse_mode_list", "2");
         applyMouseMode(Integer.parseInt(mouseMode));
 
         // Initialize trackpad contexts
@@ -678,6 +682,18 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
 
         gameMenuCallbacks = new GameMenu(this, conn);
+        keyboardBar = new DesktopKeyboardBar(this, conn, keyboardTranslator, streamView,
+                () -> showGameMenu(null));
+    }
+
+    public boolean isTextInputModeActive() {
+        return keyboardBar != null && keyboardBar.isTextInputModeActive();
+    }
+
+    public void toggleTextInputMode() {
+        if (keyboardBar != null) {
+            keyboardBar.toggleTextInputMode();
+        }
     }
 
     private void initKeyboardController(){
@@ -967,6 +983,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+
+        // Clipboard changes made in other apps can only be read once focused again
+        if (hasFocus && clipboardSync != null) {
+            clipboardSync.sendLocalClipboard();
+        }
 
         // We can't guarantee the state of modifiers keys which may have
         // lifted while focus was not on us. Clear the modifier state.
@@ -2577,6 +2598,20 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                         return true;
                     }
 
+                    switch (panZoomHandler.filterImplicitGesture(event)) {
+                        case PanZoomHandler.IMPLICIT_CLAIM_STARTED:
+                            for (TouchContext aTouchContext : touchContextMap) {
+                                if (aTouchContext != null) {
+                                    aTouchContext.cancelTouch();
+                                }
+                            }
+                            return true;
+                        case PanZoomHandler.IMPLICIT_CONSUMED:
+                            return true;
+                        default:
+                            break;
+                    }
+
                     // If touch is disabled or not initialized, we'll try panning the streamView
                     if (touchContextMap[0] == null) {
                         return true;
@@ -2778,9 +2813,15 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         else {
             // For the containing background view, we must subtract the origin
-            // of the StreamView to get video-relative coordinates.
-            eventX = event.getX(0) - streamView.getX();
-            eventY = event.getY(0) - streamView.getY();
+            // of the StreamView and divide out any zoom to get video-relative
+            // coordinates.
+            eventX = (event.getX(0) - streamView.getX()) / streamView.getScaleX();
+            eventY = (event.getY(0) - streamView.getY()) / streamView.getScaleY();
+        }
+
+        if (panZoomHandler.isZoomed()) {
+            panZoomHandler.followPoint(streamView.getX() + eventX * streamView.getScaleX(),
+                    streamView.getY() + eventY * streamView.getScaleY());
         }
 
         if (event.getPointerCount() == 1 && event.getActionIndex() == 0 &&
@@ -2855,6 +2896,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     private void stopConnection() {
+        if (clipboardSync != null) {
+            clipboardSync.stop();
+            clipboardSync = null;
+        }
+
         if (connecting || connected) {
             connecting = connected = false;
             updatePipAutoEnter();
@@ -3073,6 +3119,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 connected = true;
                 connecting = false;
                 updatePipAutoEnter();
+
+                if (prefConfig.enableClipboardSyncHelper && clipboardSync == null) {
+                    clipboardSync = new ClipboardSync(Game.this, getIntent().getStringExtra(EXTRA_HOST));
+                    clipboardSync.start();
+                }
 
                 // Hide the mouse cursor now after a short delay.
                 // Doing it before dismissing the spinner seems to be undone
@@ -3476,6 +3527,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Always exit zoom mode if mouse mode has changed
         isPanZoomMode = false;
+        if (panZoomHandler != null) {
+            panZoomHandler.resetImplicitGesture();
+        }
     }
 
     public void toggleHUD(){

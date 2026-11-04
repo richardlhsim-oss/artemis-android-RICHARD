@@ -117,11 +117,12 @@ public class PreferenceConfiguration {
     private static final String SEEKBAR_TRACKPAD_DRAG_DROP_THRESHOLD = "seekbar_trackpad_drag_drop_threshold";
     private static final String CHECKBOX_TRACKPAD_SWAP_AXIS = "checkbox_trackpad_swap_axis";
 
-    static final String DEFAULT_RESOLUTION = "1280x720";
+    static final String DEFAULT_RESOLUTION = "1920x1080";
     static final String DEFAULT_FPS = "60";
+    private static final int DEFAULT_BITRATE_KBPS = 10000;
     private static final boolean DEFAULT_ENFORCE_DISPLAY_MODE = false;
     private static final boolean DEFAULT_USE_VIRTUAL_DISPLAY = false;
-    private static final String DEFAULT_VIDEO_SCALE_MODE = "fit";
+    private static final String DEFAULT_VIDEO_SCALE_MODE = "stretch";
     private static final boolean DEFAULT_AUTO_INVERT_VIDEO_RESOLUTION = true;
     private static final int DEFAULT_RESOLUTION_SCALE_FACTOR = 100;
     private static final boolean DEFAULT_RESUME_WITHOUT_CONFIRM = false;
@@ -268,6 +269,7 @@ public class PreferenceConfiguration {
 
     //物理光标捕获
     public boolean enableMouseLocalCursor;
+    public boolean enableClipboardSyncHelper;
 
     //禁用内置的特殊指令
     public boolean enableClearDefaultSpecial;
@@ -494,10 +496,7 @@ public class PreferenceConfiguration {
     }
 
     public static int getDefaultBitrate(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return getDefaultBitrate(
-                prefs.getString(RESOLUTION_PREF_STRING, DEFAULT_RESOLUTION),
-                prefs.getString(FPS_PREF_STRING, DEFAULT_FPS));
+        return DEFAULT_BITRATE_KBPS;
     }
 
     private static FormatOption getVideoFormatValue(Context context) {
@@ -835,7 +834,8 @@ public class PreferenceConfiguration {
 
         config.enableTouchSensitivity=prefs.getBoolean("checkbox_enable_touch_sensitivity",false);
 
-        config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",false);
+        config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",true);
+        config.enableClipboardSyncHelper = prefs.getBoolean("checkbox_clipboard_sync_helper", true);
 
         config.enablePerfOverlayLiteDialog=prefs.getBoolean("checkbox_enable_perf_overlay_lite_dialog",false);
 
