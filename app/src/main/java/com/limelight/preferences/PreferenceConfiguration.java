@@ -168,7 +168,7 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_SEND_META_ON_PHYSICAL_BACK = false;
     private static final boolean DEFAULT_IGNORE_SYNTH_EVENTS = false;
     private static final boolean DEFAULT_BACK_AS_GUIDE = false;
-    private static final boolean DEFAULT_SMART_CLIPBOARD_SYNC = false;
+    private static final boolean DEFAULT_SMART_CLIPBOARD_SYNC = true;
     private static final boolean DEFAULT_SMART_CLIPBOARD_SYNC_TOAST = true;
     private static final boolean DEFAULT_HIDE_CLIPBOARD_CONTENT = true;
     private static final int DEFAULT_TRACKPAD_SENSITIVITY_X = 100;
@@ -269,7 +269,6 @@ public class PreferenceConfiguration {
 
     //物理光标捕获
     public boolean enableMouseLocalCursor;
-    public boolean enableClipboardSyncHelper;
 
     //禁用内置的特殊指令
     public boolean enableClearDefaultSpecial;
@@ -835,7 +834,6 @@ public class PreferenceConfiguration {
         config.enableTouchSensitivity=prefs.getBoolean("checkbox_enable_touch_sensitivity",false);
 
         config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",true);
-        config.enableClipboardSyncHelper = prefs.getBoolean("checkbox_clipboard_sync_helper", true);
 
         config.enablePerfOverlayLiteDialog=prefs.getBoolean("checkbox_enable_perf_overlay_lite_dialog",false);
 

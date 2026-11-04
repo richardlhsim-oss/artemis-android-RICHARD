@@ -374,9 +374,6 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 R.string.game_menu_text_input_mode_on : R.string.game_menu_text_input_mode_off), true,
                 game::toggleTextInputMode));
 
-        options.add(new MenuOption(getString(game.isZoomModeEnabled() ? R.string.game_menu_disable_zoom_mode : R.string.game_menu_enable_zoom_mode), true,
-                game::toggleZoomMode));
-
         options.add(new MenuOption(getString(R.string.game_menu_rotate_screen), true,
                 game::rotateScreen));
 

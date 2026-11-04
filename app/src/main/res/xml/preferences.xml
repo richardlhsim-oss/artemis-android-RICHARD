@@ -281,13 +281,6 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="checkbox_clipboard_sync_helper"
-            android:summary="@string/summary_checkbox_clipboard_sync_helper"
-            android:title="@string/title_checkbox_clipboard_sync_helper"
-            app:iconSpaceReserved="false" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
             android:key="checkbox_mouse_local_cursor"
             android:summary="@string/summary_checkbox_mouse_local_cursor"
             android:title="@string/title_checkbox_mouse_local_cursor"
@@ -395,7 +388,7 @@
         app:iconSpaceReserved="false">
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="checkbox_smart_clipboard_sync"
             android:summary="@string/summary_smart_clipboard_sync"
             android:title="@string/title_smart_clipboard_sync"

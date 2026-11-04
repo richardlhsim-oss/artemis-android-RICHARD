@@ -34,7 +34,6 @@ import com.limelight.preferences.GlPreferences;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamView;
-import com.limelight.utils.ClipboardSync;
 import com.limelight.utils.DesktopKeyboardBar;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.PanZoomHandler;
@@ -260,7 +259,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     public GameMenuCallbacks gameMenuCallbacks;
     private DesktopKeyboardBar keyboardBar;
-    private ClipboardSync clipboardSync;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -983,11 +981,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-
-        // Clipboard changes made in other apps can only be read once focused again
-        if (hasFocus && clipboardSync != null) {
-            clipboardSync.sendLocalClipboard();
-        }
 
         // We can't guarantee the state of modifiers keys which may have
         // lifted while focus was not on us. Clear the modifier state.
@@ -2896,11 +2889,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     private void stopConnection() {
-        if (clipboardSync != null) {
-            clipboardSync.stop();
-            clipboardSync = null;
-        }
-
         if (connecting || connected) {
             connecting = connected = false;
             updatePipAutoEnter();
@@ -3119,11 +3107,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 connected = true;
                 connecting = false;
                 updatePipAutoEnter();
-
-                if (prefConfig.enableClipboardSyncHelper && clipboardSync == null) {
-                    clipboardSync = new ClipboardSync(Game.this, getIntent().getStringExtra(EXTRA_HOST));
-                    clipboardSync.start();
-                }
 
                 // Hide the mouse cursor now after a short delay.
                 // Doing it before dismissing the spinner seems to be undone

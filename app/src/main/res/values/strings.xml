@@ -604,6 +604,4 @@
     <string name="func_rotate_description">Rotate screen</string>
     <string name="game_menu_text_input_mode_on">Text input mode (voice / swipe): on</string>
     <string name="game_menu_text_input_mode_off">Text input mode (voice / swipe): off</string>
-    <string name="title_checkbox_clipboard_sync_helper">Sync clipboard with PC helper</string>
-    <string name="summary_checkbox_clipboard_sync_helper">Two-way text clipboard sync through the ClipboardSync helper on the PC (works with Sunshine and its forks)</string>
 </resources>
