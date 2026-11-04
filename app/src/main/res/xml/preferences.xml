@@ -271,7 +271,7 @@
         android:title="@string/category_input_settings"
         app:iconSpaceReserved="false">
         <ListPreference
-            android:defaultValue="2"
+            android:defaultValue="1"
             android:entries="@array/mouse_mode_names"
             android:entryValues="@array/mouse_mode_values"
             android:key="mouse_mode_list"

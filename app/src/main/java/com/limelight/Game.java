@@ -36,6 +36,7 @@ import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamView;
 import com.limelight.utils.DesktopKeyboardBar;
 import com.limelight.utils.DesktopOverlays;
+import com.limelight.binding.input.touch.DirectTouchGestures;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.PanZoomHandler;
 import com.limelight.utils.ServerHelper;
@@ -261,6 +262,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     public GameMenuCallbacks gameMenuCallbacks;
     private DesktopKeyboardBar keyboardBar;
     private DesktopOverlays desktopOverlays;
+    private DirectTouchGestures directTouch;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -637,7 +639,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         inputManager.registerInputDeviceListener(keyboardTranslator, null);
 
         // Initialize touch contexts
-        String mouseMode = PreferenceManager.getDefaultSharedPreferences(this).getString("mouse_mode_list", "2");
+        String mouseMode = PreferenceManager.getDefaultSharedPreferences(this).getString("mouse_mode_list", "1");
         applyMouseMode(Integer.parseInt(mouseMode));
 
         // Initialize trackpad contexts
@@ -2604,6 +2606,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                     switch (panZoomHandler.filterImplicitGesture(event)) {
                         case PanZoomHandler.IMPLICIT_CLAIM_STARTED:
+                            if (directTouch != null) {
+                                directTouch.cancel();
+                            }
                             for (TouchContext aTouchContext : touchContextMap) {
                                 if (aTouchContext != null) {
                                     aTouchContext.cancelTouch();
@@ -2614,6 +2619,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                             return true;
                         default:
                             break;
+                    }
+
+                    // Absolute touch: tap clicks, drag pans, double-tap drag selects
+                    if (directTouch != null) {
+                        return directTouch.onTouchEvent(event);
                     }
 
                     // If touch is disabled or not initialized, we'll try panning the streamView
@@ -3518,6 +3528,12 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 touchContextMap[i] = new TrackpadContext(conn, i);
             }
         }
+
+        if (directTouch != null) {
+            directTouch.cancel();
+        }
+        directTouch = (mode == 1 || mode == 5) ?
+                new DirectTouchGestures(conn, streamView, panZoomHandler, mode == 5) : null;
 
         // Always exit zoom mode if mouse mode has changed
         isPanZoomMode = false;

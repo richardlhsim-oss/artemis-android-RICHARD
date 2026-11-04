@@ -11,7 +11,9 @@ Artemis is currently the best fork of Moonlight with loads of optimizations for 
 
 A more seamless experience with virtual display will be Artemis paired with [Apollo](https://github.com/ClassicOldSong/Apollo).
 
-# Desktop customizations in this fork
+# Optimus: desktop customizations in this fork
+
+This build is named **Optimus**.
 
 This fork adds remote desktop features carried over from [moonlight-android-RICHARD](https://github.com/richardlhsim-oss/moonlight-android-RICHARD):
 
@@ -23,10 +25,10 @@ This fork adds remote desktop features carried over from [moonlight-android-RICH
 - **Quick menu handle (right edge):** the arrow opens a quick menu with the keyboard, touch mode, performance stats, the game menu, privacy screen (needs the PrivacyScreen helper on the host), move overlays and disconnect. The keyboard icon on the handle opens the soft keyboard.
 - **Scroll bar (right edge):** drag to scroll. Optional left/right mouse buttons at the bottom, with drag lock on double-tap.
 - **Move overlays:** from the quick menu, drag the handle, scroll bar or mouse buttons to a new place, then tap one without dragging to save. Opacity and which overlays show are set in the input settings.
-- **Taps right after a pinch still click.** Only a drag within 1 second of a pinch pans the view.
+- **Absolute touch gestures (default touch mode):** tap clicks exactly where you touch, one-finger drag pans the view at any time, double-tap then drag selects text, press and hold right-clicks, two-finger drag scrolls, pinch zooms.
 - **Text input mode (voice / swipe):** swipe typing, autocorrect and voice dictation type into the host. Toggle with **Aa** on the modifier bar or from the game menu.
 
-Defaults for a fresh install: custom 1800x1100 resolution, 10 Mbps (also kept when the resolution changes), scroll bar on, mouse buttons off, stretch video, natural trackpad touch mode, local mouse cursor. Clipboard sync uses Artemis's built-in Apollo support. Defaults only apply to settings that have never been saved.
+Defaults for a fresh install: custom 1800x1100 resolution, 10 Mbps (also kept when the resolution changes), scroll bar on, mouse buttons off, stretch video, absolute touch mode, local mouse cursor. Clipboard sync uses Artemis's built-in Apollo support. Defaults only apply to settings that have never been saved.
 
 # Features
 

@@ -214,6 +214,15 @@ public class PanZoomHandler {
         }
     }
 
+    public void panBy(float dx, float dy) {
+        if (parent == null) {
+            parent = (View) streamView.getParent();
+        }
+        childX = streamView.getX() + dx;
+        childY = streamView.getY() + dy;
+        constrainToBounds();
+    }
+
     public void resetImplicitGesture() {
         implicitState = GESTURE_IDLE;
         lastPinchEndTime = 0;
