@@ -358,6 +358,36 @@
             android:background="@android:color/transparent" />
 
         <Button
+            android:id="@+id/modifierDelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_del"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
+            android:id="@+id/modifierInsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:focusable="false"
+            android:text="@string/modifier_ins"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="#EEEEEE"
+            android:background="@android:color/transparent" />
+
+        <Button
             android:id="@+id/modifierTextModeButton"
             android:layout_width="wrap_content"
             android:layout_height="44dp"

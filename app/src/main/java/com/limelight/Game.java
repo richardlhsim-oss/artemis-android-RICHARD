@@ -263,6 +263,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private DesktopKeyboardBar keyboardBar;
     private DesktopOverlays desktopOverlays;
     private DirectTouchGestures directTouch;
+    private int multiFingerMaxPointers;
+    private long multiFingerStartTime;
+    private static final int MULTI_FINGER_TAP_MAX_MS = 600;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -692,6 +695,45 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         keyboardBar = new DesktopKeyboardBar(this, conn, keyboardTranslator, streamView,
                 () -> showGameMenu(null));
         desktopOverlays = new DesktopOverlays(this, conn, keyboardTranslator, prefConfig);
+    }
+
+    // Three-finger tap: soft keyboard. Four-finger tap: full-size on-screen
+    // keyboard. Once a third finger lands the whole gesture is consumed.
+    private boolean handleMultiFingerTap(MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                multiFingerMaxPointers = 1;
+                multiFingerStartTime = event.getEventTime();
+                return false;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                int count = event.getPointerCount();
+                if (count >= 3 && multiFingerMaxPointers < 3) {
+                    panZoomHandler.abortImplicitGesture();
+                    directTouch.cancel();
+                }
+                multiFingerMaxPointers = Math.max(multiFingerMaxPointers, count);
+                return multiFingerMaxPointers >= 3;
+            case MotionEvent.ACTION_UP:
+                if (multiFingerMaxPointers >= 3) {
+                    if (event.getEventTime() - multiFingerStartTime < MULTI_FINGER_TAP_MAX_MS) {
+                        if (multiFingerMaxPointers == 3) {
+                            toggleKeyboard();
+                        }
+                        else if (multiFingerMaxPointers == 4) {
+                            showHidekeyBoardLayoutController();
+                        }
+                    }
+                    multiFingerMaxPointers = 0;
+                    return true;
+                }
+                return false;
+            case MotionEvent.ACTION_CANCEL:
+                boolean consumed = multiFingerMaxPointers >= 3;
+                multiFingerMaxPointers = 0;
+                return consumed;
+            default:
+                return multiFingerMaxPointers >= 3;
+        }
     }
 
     public boolean isTextInputModeActive() {
@@ -2609,6 +2651,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                         return true;
                     }
 
+                    if (directTouch != null && handleMultiFingerTap(event)) {
+                        return true;
+                    }
+
                     switch (panZoomHandler.filterImplicitGesture(event)) {
                         case PanZoomHandler.IMPLICIT_CLAIM_STARTED:
                             if (directTouch != null) {
@@ -3538,7 +3584,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             directTouch.cancel();
         }
         directTouch = (mode == 1 || mode == 5) ?
-                new DirectTouchGestures(this, conn, streamView, panZoomHandler, mode == 5) : null;
+                new DirectTouchGestures(conn, streamView, panZoomHandler, mode == 5) : null;
 
         // Always exit zoom mode if mouse mode has changed
         isPanZoomMode = false;

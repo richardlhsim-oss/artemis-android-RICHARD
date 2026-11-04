@@ -594,6 +594,8 @@
     <string name="modifier_ctrl">Ctrl</string>
     <string name="modifier_alt">Alt</string>
     <string name="modifier_tab">Tab</string>
+    <string name="modifier_del">Del</string>
+    <string name="modifier_ins">Ins</string>
     <string name="modifier_text_mode">Aa</string>
     <string name="text_mode_on">Text mode: swipe, autocorrect and dictation are typed to the host</string>
     <string name="text_mode_off">Key mode: keystrokes are sent directly</string>

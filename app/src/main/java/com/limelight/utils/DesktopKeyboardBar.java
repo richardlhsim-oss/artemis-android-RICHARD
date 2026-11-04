@@ -6,18 +6,17 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.limelight.R;
 import com.limelight.binding.input.KeyboardTranslator;
@@ -76,6 +75,8 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         setupStickyModifier(R.id.modifierAltButton, KeyboardPacket.MODIFIER_ALT, KeyEvent.KEYCODE_ALT_LEFT);
 
         activity.findViewById(R.id.modifierTabButton).setOnClickListener(v -> sendKeys(KeyEvent.KEYCODE_TAB));
+        activity.findViewById(R.id.modifierDelButton).setOnClickListener(v -> sendKeys(KeyEvent.KEYCODE_FORWARD_DEL));
+        activity.findViewById(R.id.modifierInsButton).setOnClickListener(v -> sendKeys(KeyEvent.KEYCODE_INSERT));
         activity.findViewById(R.id.modifierTextModeButton).setOnClickListener(v -> toggleTextInputMode());
         activity.findViewById(R.id.modifierSettingsButton).setOnClickListener(v -> this.openMenu.run());
         padToggleButton.setOnClickListener(v -> {
@@ -256,25 +257,15 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         // The bar is translated into the bottom padding reserved for the
         // keyboard, so padding must not clip it
         contentView.setClipToPadding(false);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            contentView.setOnApplyWindowInsetsListener((v, insets) -> {
-                onImeStateChanged(insets.isVisible(WindowInsets.Type.ime()),
-                        insets.getInsets(WindowInsets.Type.ime()).bottom);
-                return insets;
-            });
-        }
-        else {
-            contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    Rect visibleFrame = new Rect();
-                    contentView.getWindowVisibleDisplayFrame(visibleFrame);
-                    int rootHeight = contentView.getRootView().getHeight();
-                    int coveredHeight = rootHeight - visibleFrame.bottom;
-                    onImeStateChanged(coveredHeight > rootHeight * 0.15, coveredHeight);
-                }
-            });
-        }
+
+        // Only the IME inset decides visibility. Comparing window sizes gave
+        // false positives on tablets, in split screen and in resizable
+        // windows, which showed the bar at session start.
+        ViewCompat.setOnApplyWindowInsetsListener(contentView, (v, insets) -> {
+            int height = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            onImeStateChanged(insets.isVisible(WindowInsetsCompat.Type.ime()) && height > 0, height);
+            return insets;
+        });
     }
 
     private void onImeStateChanged(boolean visible, int height) {

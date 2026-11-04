@@ -214,6 +214,11 @@ public class PanZoomHandler {
         }
     }
 
+    // A third or fourth finger is a tap gesture, not a pinch
+    public void abortImplicitGesture() {
+        implicitState = GESTURE_REJECTED;
+    }
+
     public void panBy(float dx, float dy) {
         if (parent == null) {
             parent = (View) streamView.getParent();
