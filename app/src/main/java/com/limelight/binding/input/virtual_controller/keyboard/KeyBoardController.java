@@ -198,6 +198,11 @@ public class KeyBoardController {
 
         // Apply user preferences onto the default layout
         KeyBoardControllerConfigurationLoader.loadFromPreferences(this, context);
+
+        // The rebuilt elements are visible, so respect a hidden state
+        if (!shown) {
+            hide(true);
+        }
     }
 
     public ControllerMode getControllerMode() {

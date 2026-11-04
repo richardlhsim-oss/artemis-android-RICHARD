@@ -6,6 +6,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.limelight.Game;
 import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.input.MouseButtonPacket;
 import com.limelight.utils.PanZoomHandler;
@@ -23,6 +24,8 @@ public class DirectTouchGestures {
     private static final float TAP_SLOP_DP = 12;
     private static final float DOUBLE_TAP_SLOP_DP = 40;
     private static final float SCROLL_SPEED_FACTOR = 3 * 0.57f;
+    private static final int THREE_FINGER_TAP_TIME_MS = 300;
+    private static final int THREE_FINGER_DOUBLE_TAP_MS = 500;
 
     private static final int STATE_IDLE = 0;
     private static final int STATE_PENDING = 1;
@@ -47,6 +50,20 @@ public class DirectTouchGestures {
     private long lastTapUpTime;
     private float lastTapX, lastTapY;
     private boolean longPressed;
+    private Runnable pendingRelease;
+    private byte pendingReleaseButton;
+    private long threeFingerDownTime;
+    private long lastThreeFingerTapTime;
+    private final Game game;
+
+    // A single three-finger tap opens the soft keyboard unless a second one follows
+    private final Runnable threeFingerSingleTap = new Runnable() {
+        @Override
+        public void run() {
+            lastThreeFingerTapTime = 0;
+            game.toggleKeyboard();
+        }
+    };
 
     private final Runnable longPressRunnable = new Runnable() {
         @Override
@@ -58,7 +75,8 @@ public class DirectTouchGestures {
         }
     };
 
-    public DirectTouchGestures(NvConnection conn, View streamView, PanZoomHandler panZoomHandler, boolean swapped) {
+    public DirectTouchGestures(Game game, NvConnection conn, View streamView, PanZoomHandler panZoomHandler, boolean swapped) {
+        this.game = game;
         this.conn = conn;
         this.streamView = streamView;
         this.panZoomHandler = panZoomHandler;
@@ -78,9 +96,11 @@ public class DirectTouchGestures {
                 longPressed = false;
                 if (event.getEventTime() - lastTapUpTime < DOUBLE_TAP_TIME_MS &&
                         Math.hypot(downX - lastTapX, downY - lastTapY) < doubleTapSlop) {
-                    // Second press of a double tap: hold the button so dragging selects
+                    // Second press of a double tap: the host sees a double click
+                    // (selecting the word) and holding extends the selection
                     state = STATE_SELECTING;
-                    moveCursorTo(downX, downY);
+                    flushPendingRelease();
+                    moveCursorTo(lastTapX, lastTapY);
                     conn.sendMouseButtonDown(buttonPrimary);
                 }
                 else {
@@ -97,6 +117,9 @@ public class DirectTouchGestures {
                     prevScrollY = (event.getY(0) + event.getY(1)) / 2;
                 }
                 else {
+                    if (event.getPointerCount() == 3) {
+                        threeFingerDownTime = event.getEventTime();
+                    }
                     state = STATE_CANCELLED;
                 }
                 return true;
@@ -141,6 +164,12 @@ public class DirectTouchGestures {
 
             case MotionEvent.ACTION_UP:
                 handler.removeCallbacks(longPressRunnable);
+                if (event.getEventTime() - threeFingerDownTime < THREE_FINGER_TAP_TIME_MS) {
+                    threeFingerDownTime = 0;
+                    onThreeFingerTap(event.getEventTime());
+                    state = STATE_IDLE;
+                    return true;
+                }
                 if (state == STATE_PENDING) {
                     moveCursorTo(event.getX(), event.getY());
                     if (longPressed) {
@@ -181,10 +210,37 @@ public class DirectTouchGestures {
         }
     }
 
+    private void onThreeFingerTap(long eventTime) {
+        if (eventTime - lastThreeFingerTapTime < THREE_FINGER_DOUBLE_TAP_MS) {
+            // Two three-finger taps: full-size on-screen keyboard
+            handler.removeCallbacks(threeFingerSingleTap);
+            lastThreeFingerTapTime = 0;
+            game.showHidekeyBoardLayoutController();
+        }
+        else {
+            lastThreeFingerTapTime = eventTime;
+            handler.postDelayed(threeFingerSingleTap, THREE_FINGER_DOUBLE_TAP_MS);
+        }
+    }
+
     private void click(final byte button) {
+        flushPendingRelease();
         conn.sendMouseButtonDown(button);
         // Released after a short delay for apps that poll button state
-        handler.postDelayed(() -> conn.sendMouseButtonUp(button), CLICK_RELEASE_DELAY_MS);
+        pendingReleaseButton = button;
+        pendingRelease = () -> {
+            pendingRelease = null;
+            conn.sendMouseButtonUp(button);
+        };
+        handler.postDelayed(pendingRelease, CLICK_RELEASE_DELAY_MS);
+    }
+
+    private void flushPendingRelease() {
+        if (pendingRelease != null) {
+            handler.removeCallbacks(pendingRelease);
+            pendingRelease = null;
+            conn.sendMouseButtonUp(pendingReleaseButton);
+        }
     }
 
     private void moveCursorTo(float parentX, float parentY) {

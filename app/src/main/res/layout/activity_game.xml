@@ -440,7 +440,7 @@
             <Button style="@style/FunctionPadKey" android:id="@+id/funcIns" android:text="Ins" />
             <Button style="@style/FunctionPadKey" android:id="@+id/funcPaste" android:text="Paste" />
             <Button style="@style/FunctionPadKey" android:id="@+id/funcEnter" android:text="Enter" />
-            <View style="@style/FunctionPadSpacer" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcWin" android:text="Win" />
         </LinearLayout>
 
         <LinearLayout style="@style/FunctionPadRow">
@@ -452,7 +452,7 @@
             <ImageButton style="@style/FunctionPadKey" android:id="@+id/funcRotate"
                 android:src="@drawable/ic_screen_rotate" android:scaleType="fitCenter" android:padding="12dp"
                 android:contentDescription="@string/func_rotate_description" />
-            <View style="@style/FunctionPadSpacer" />
+            <Button style="@style/FunctionPadKey" android:id="@+id/funcBackspace" android:text="Bksp" />
             <View style="@style/FunctionPadSpacer" />
             <Button style="@style/FunctionPadKey" android:id="@+id/funcUp" android:text="▲" />
             <View style="@style/FunctionPadSpacer" />

@@ -324,6 +324,9 @@ public class KeyBoardLayoutController {
         // params.topMargin = 15;
         keyboardView.setAlpha(prefConfig.oscKeyboardOpacity / 100f);
         frame_layout.addView(keyboardView, params);
+        if (!shown) {
+            keyboardView.setVisibility(View.GONE);
+        }
     }
 
     public int dip2px(Context context, float dpValue) {

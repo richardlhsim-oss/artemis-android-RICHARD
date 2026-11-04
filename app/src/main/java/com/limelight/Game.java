@@ -639,7 +639,12 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         inputManager.registerInputDeviceListener(keyboardTranslator, null);
 
         // Initialize touch contexts
-        String mouseMode = PreferenceManager.getDefaultSharedPreferences(this).getString("mouse_mode_list", "1");
+        SharedPreferences modePrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!modePrefs.getBoolean("absolute_touch_default_applied", false)) {
+            modePrefs.edit().putString("mouse_mode_list", "1")
+                    .putBoolean("absolute_touch_default_applied", true).apply();
+        }
+        String mouseMode = modePrefs.getString("mouse_mode_list", "1");
         applyMouseMode(Integer.parseInt(mouseMode));
 
         // Initialize trackpad contexts
@@ -3533,7 +3538,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             directTouch.cancel();
         }
         directTouch = (mode == 1 || mode == 5) ?
-                new DirectTouchGestures(conn, streamView, panZoomHandler, mode == 5) : null;
+                new DirectTouchGestures(this, conn, streamView, panZoomHandler, mode == 5) : null;
 
         // Always exit zoom mode if mouse mode has changed
         isPanZoomMode = false;

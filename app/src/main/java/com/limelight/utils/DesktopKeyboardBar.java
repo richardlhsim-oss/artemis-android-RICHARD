@@ -171,6 +171,8 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         wireKey(R.id.funcPgDn, KeyEvent.KEYCODE_PAGE_DOWN);
         wireKey(R.id.funcIns, KeyEvent.KEYCODE_INSERT);
         wireKey(R.id.funcEnter, KeyEvent.KEYCODE_ENTER);
+        wireKey(R.id.funcWin, KeyEvent.KEYCODE_META_LEFT);
+        wireKey(R.id.funcBackspace, KeyEvent.KEYCODE_DEL);
 
         wireKey(R.id.funcCtrlZ, KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_Z);
         wireKey(R.id.funcWinD, KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_D);
