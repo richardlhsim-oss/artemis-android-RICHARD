@@ -115,6 +115,9 @@ public class DirectTouchGestures {
                 if (event.getPointerCount() == 2) {
                     state = STATE_SCROLLING;
                     prevScrollY = (event.getY(0) + event.getY(1)) / 2;
+                    // Windows scrolls whatever is under the cursor, so put the
+                    // cursor between the fingers to scroll that pane directly
+                    moveCursorTo((event.getX(0) + event.getX(1)) / 2, prevScrollY);
                 }
                 else {
                     if (event.getPointerCount() == 3) {
