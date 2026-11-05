@@ -150,7 +150,7 @@ public class PanZoomHandler {
                         primePinch(event);
                         return IMPLICIT_CLAIM_STARTED;
                     }
-                    else if (focusDelta > implicitDecisionSlop * 1.5f && focusDelta > spanDelta * 2) {
+                    else if (focusDelta > implicitDecisionSlop && focusDelta > spanDelta * 1.5f) {
                         // Fingers moving together: this is a scroll
                         implicitState = GESTURE_REJECTED;
                         return IMPLICIT_PASS;

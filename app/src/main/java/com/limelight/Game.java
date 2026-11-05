@@ -265,7 +265,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private DirectTouchGestures directTouch;
     private int multiFingerMaxPointers;
     private long multiFingerStartTime;
-    private static final int MULTI_FINGER_TAP_MAX_MS = 600;
+    private static final int MULTI_FINGER_TAP_MAX_MS = 800;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -709,11 +709,19 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 int count = event.getPointerCount();
                 if (count >= 3 && multiFingerMaxPointers < 3) {
                     panZoomHandler.abortImplicitGesture();
-                    directTouch.cancel();
+                    if (directTouch != null) {
+                        directTouch.cancel();
+                    }
+                    for (TouchContext aTouchContext : touchContextMap) {
+                        if (aTouchContext != null) {
+                            aTouchContext.cancelTouch();
+                        }
+                    }
                 }
                 multiFingerMaxPointers = Math.max(multiFingerMaxPointers, count);
                 return multiFingerMaxPointers >= 3;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 if (multiFingerMaxPointers >= 3) {
                     if (event.getEventTime() - multiFingerStartTime < MULTI_FINGER_TAP_MAX_MS) {
                         if (multiFingerMaxPointers == 3) {
@@ -727,10 +735,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                     return true;
                 }
                 return false;
-            case MotionEvent.ACTION_CANCEL:
-                boolean consumed = multiFingerMaxPointers >= 3;
-                multiFingerMaxPointers = 0;
-                return consumed;
             default:
                 return multiFingerMaxPointers >= 3;
         }
@@ -1978,6 +1982,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public void toggleKeyboard() {
         LimeLog.info("Toggling keyboard overlay");
+        if (keyboardBar != null) {
+            keyboardBar.onKeyboardRequested();
+        }
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.toggleSoftInput(0, 0);
     }
@@ -2651,7 +2658,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                         return true;
                     }
 
-                    if (directTouch != null && handleMultiFingerTap(event)) {
+                    if (!prefConfig.enableMultiTouchScreen && handleMultiFingerTap(event)) {
                         return true;
                     }
 

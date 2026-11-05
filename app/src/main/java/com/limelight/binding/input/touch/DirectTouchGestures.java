@@ -22,7 +22,7 @@ public class DirectTouchGestures {
     private static final int CLICK_RELEASE_DELAY_MS = 100;
     private static final float TAP_SLOP_DP = 12;
     private static final float DOUBLE_TAP_SLOP_DP = 40;
-    private static final float SCROLL_SPEED_FACTOR = 6;
+    private static final float SCROLL_SPEED_FACTOR = 3;
 
     private static final int STATE_IDLE = 0;
     private static final int STATE_PENDING = 1;

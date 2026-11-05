@@ -6,17 +6,18 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.limelight.R;
 import com.limelight.binding.input.KeyboardTranslator;
@@ -50,6 +51,7 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
     private boolean functionPadVisible;
     private boolean barShowing;
     private boolean imeVisible;
+    private boolean keyboardRequested;
     private int imeHeight;
 
     public DesktopKeyboardBar(Activity activity, NvConnection conn, KeyboardTranslator keyboardTranslator,
@@ -95,6 +97,10 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
 
         setupFunctionPad();
         watchIme();
+
+        // Voice and swipe text input is the default
+        textInputModeActive = true;
+        ((Button) activity.findViewById(R.id.modifierTextModeButton)).setTextColor(ACCENT_COLOR);
     }
 
     public boolean isTextInputModeActive() {
@@ -257,18 +263,37 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         // The bar is translated into the bottom padding reserved for the
         // keyboard, so padding must not clip it
         contentView.setClipToPadding(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            contentView.setOnApplyWindowInsetsListener((v, insets) -> {
+                onImeStateChanged(insets.isVisible(WindowInsets.Type.ime()),
+                        insets.getInsets(WindowInsets.Type.ime()).bottom);
+                return insets;
+            });
+        }
+        else {
+            contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect visibleFrame = new Rect();
+                    contentView.getWindowVisibleDisplayFrame(visibleFrame);
+                    int rootHeight = contentView.getRootView().getHeight();
+                    int coveredHeight = rootHeight - visibleFrame.bottom;
+                    onImeStateChanged(coveredHeight > rootHeight * 0.15, coveredHeight);
+                }
+            });
+        }
+    }
 
-        // Only the IME inset decides visibility. Comparing window sizes gave
-        // false positives on tablets, in split screen and in resizable
-        // windows, which showed the bar at session start.
-        ViewCompat.setOnApplyWindowInsetsListener(contentView, (v, insets) -> {
-            int height = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-            onImeStateChanged(insets.isVisible(WindowInsetsCompat.Type.ime()) && height > 0, height);
-            return insets;
-        });
+    // Called whenever the user shows or hides the soft keyboard
+    public void onKeyboardRequested() {
+        keyboardRequested = true;
     }
 
     private void onImeStateChanged(boolean visible, int height) {
+        if (!visible) {
+            keyboardRequested = false;
+        }
+        visible = visible && keyboardRequested;
         imeVisible = visible;
         imeHeight = Math.max(0, height);
 
