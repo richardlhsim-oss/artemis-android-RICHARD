@@ -27,6 +27,7 @@ This fork adds remote desktop features carried over from [moonlight-android-RICH
 - **Move overlays:** from the quick menu, drag the handle, scroll bar or mouse buttons to a new place, then tap one without dragging to save. Opacity and which overlays show are set in the input settings.
 - **Absolute touch gestures (default touch mode):** tap clicks exactly where you touch, one-finger drag pans the view at any time, double-tap selects a word like a mouse double click and dragging after it extends the selection,  press and hold right-clicks, two-finger drag scrolls the window or pane under the fingers (no click needed), pinch zooms.
 - **Three-finger tap** opens the soft keyboard and a **four-finger tap** opens the full-size on-screen keyboard, in every touch mode except multi-touch.
+- **End session on disconnect (on by default):** disconnecting also quits the app on the host, so Apollo/VibeShine restores the original display and resolution and runs the app's undo commands. Turn it off in the input settings to keep sessions running for a later reconnect.
 - **Text input mode (voice / swipe):** swipe typing, autocorrect and voice dictation type into the host. On by default; toggle with **Aa** on the modifier bar or from the game menu.
 
 Defaults for a fresh install: custom 1800x1100 resolution, 10 Mbps (also kept when the resolution changes), scroll bar on, mouse buttons off, stretch video, absolute touch mode, local mouse cursor. Clipboard sync uses Artemis's built-in Apollo support. Defaults only apply to settings that have never been saved.

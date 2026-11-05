@@ -270,6 +270,7 @@ public class PreferenceConfiguration {
     //物理光标捕获
     public boolean enableMouseLocalCursor;
     public boolean showMouseButtons;
+    public boolean quitOnDisconnect;
     public boolean showScrollStrip;
     public boolean showHandleKeyboard;
     public boolean invertScrollStrip;
@@ -840,6 +841,7 @@ public class PreferenceConfiguration {
 
         config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",true);
         config.showMouseButtons = prefs.getBoolean("checkbox_show_mouse_buttons", false);
+        config.quitOnDisconnect = prefs.getBoolean("checkbox_quit_on_disconnect", true);
         config.showScrollStrip = prefs.getBoolean("checkbox_show_scroll_strip", true);
         config.showHandleKeyboard = prefs.getBoolean("checkbox_show_handle_keyboard", true);
         config.invertScrollStrip = prefs.getBoolean("checkbox_invert_scroll_strip", false);

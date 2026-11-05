@@ -308,6 +308,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Read the stream preferences
         prefConfig = PreferenceConfiguration.readPreferences(this);
+
+        // Ending the host session (rather than leaving it running for a
+        // reconnect) lets the host restore its display and resolution
+        quitOnStop = prefConfig.quitOnDisconnect;
         tombstonePrefs = Game.this.getSharedPreferences("DecoderTombstone", 0);
 
         if (prefConfig.autoOrientation) {

@@ -633,4 +633,6 @@
     <string name="title_checkbox_invert_scroll_strip">Invert scroll bar direction</string>
     <string name="summary_checkbox_invert_scroll_strip">Reverse which way the scroll bar scrolls</string>
     <string name="suffix_percent">%</string>
+    <string name="title_checkbox_quit_on_disconnect">End session on disconnect</string>
+    <string name="summary_checkbox_quit_on_disconnect">Quit the app on the host when disconnecting, so the host restores its display and resolution and runs its undo commands</string>
 </resources>

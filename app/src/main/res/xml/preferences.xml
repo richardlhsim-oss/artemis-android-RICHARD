@@ -281,6 +281,13 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="checkbox_quit_on_disconnect"
+            android:summary="@string/summary_checkbox_quit_on_disconnect"
+            android:title="@string/title_checkbox_quit_on_disconnect"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="checkbox_show_scroll_strip"
             android:summary="@string/summary_checkbox_show_scroll_strip"
             android:title="@string/title_checkbox_show_scroll_strip"
