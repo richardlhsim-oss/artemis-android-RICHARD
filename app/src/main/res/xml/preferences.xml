@@ -281,6 +281,13 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="checkbox_auto_privacy_screen"
+            android:summary="@string/summary_checkbox_auto_privacy_screen"
+            android:title="@string/title_checkbox_auto_privacy_screen"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="checkbox_quit_on_disconnect"
             android:summary="@string/summary_checkbox_quit_on_disconnect"
             android:title="@string/title_checkbox_quit_on_disconnect"

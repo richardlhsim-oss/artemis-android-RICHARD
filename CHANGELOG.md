@@ -3,6 +3,7 @@
 Changes in Optimus (desktop-mode branch) on top of Artemis.
 
 ## 2026-11-06
+- Privacy screen while connected (on by default): sends the PrivacyScreen helper's on hotkey when a session starts and its off hotkey when it ends.
 - Virtual display is off by default again: the host resizes its real monitor to the resolution set in the app and restores it on disconnect.
 - With a physical keyboard connected, if the soft keyboard is blocked by Android the app opens the system setting that allows it.
 - Virtual display is on by default, so the host streams at the app's resolution and returns to its own desktop resolution when the session ends.

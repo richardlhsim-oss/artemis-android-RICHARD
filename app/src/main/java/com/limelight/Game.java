@@ -746,6 +746,21 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
     }
 
+    // Ctrl+Alt+Shift+F9 / F10 switch the host's PrivacyScreen helper on / off
+    private void sendPrivacyScreenHotkey(int functionKey) {
+        int[] keys = { KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.KEYCODE_SHIFT_LEFT, functionKey };
+        short[] translated = new short[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            translated[i] = keyboardTranslator.translate(keys[i], 0, -1);
+        }
+        for (short key : translated) {
+            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, (byte) 0, (byte) 0);
+        }
+        for (int i = translated.length - 1; i >= 0; i--) {
+            conn.sendKeyboardInput(translated[i], KeyboardPacket.KEY_UP, (byte) 0, (byte) 0);
+        }
+    }
+
     public boolean isTextInputModeActive() {
         return keyboardBar != null && keyboardBar.isTextInputModeActive();
     }
@@ -3009,6 +3024,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     private void stopConnection() {
+        if (connected && prefConfig.autoPrivacyScreen) {
+            sendPrivacyScreenHotkey(KeyEvent.KEYCODE_F10);
+        }
+
         if (connecting || connected) {
             connecting = connected = false;
             updatePipAutoEnter();
@@ -3227,6 +3246,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 connected = true;
                 connecting = false;
                 updatePipAutoEnter();
+
+                if (prefConfig.autoPrivacyScreen) {
+                    sendPrivacyScreenHotkey(KeyEvent.KEYCODE_F9);
+                }
 
                 // Hide the mouse cursor now after a short delay.
                 // Doing it before dismissing the spinner seems to be undone
