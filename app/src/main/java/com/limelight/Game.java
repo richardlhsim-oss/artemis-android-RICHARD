@@ -85,6 +85,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.View.OnGenericMotionListener;
 import android.view.View.OnSystemUiVisibilityChangeListener;
 import android.view.View.OnTouchListener;
@@ -1986,11 +1987,28 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public void toggleKeyboard() {
         LimeLog.info("Toggling keyboard overlay");
-        if (keyboardBar != null) {
-            keyboardBar.onKeyboardRequested();
-        }
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.toggleSoftInput(0, 0);
+        if (keyboardBar == null) {
+            inputManager.toggleSoftInput(0, 0);
+            return;
+        }
+
+        keyboardBar.onKeyboardRequested();
+        if (keyboardBar.isImeShowing()) {
+            inputManager.hideSoftInputFromWindow(streamView.getWindowToken(), 0);
+            return;
+        }
+
+        // The stream view must hold focus with a fresh input connection for
+        // the keyboard to attach to it
+        streamView.requestFocus();
+        inputManager.restartInput(streamView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().getInsetsController().show(WindowInsets.Type.ime());
+        }
+        else {
+            inputManager.showSoftInput(streamView, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     private byte getLiTouchTypeFromEvent(MotionEvent event) {

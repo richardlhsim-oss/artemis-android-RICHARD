@@ -13,6 +13,8 @@ A more seamless experience with virtual display will be Artemis paired with [Apo
 
 # Optimus: desktop customizations in this fork
 
+See [CHANGELOG.md](CHANGELOG.md) for the full list of changes.
+
 This build is named **Optimus**.
 
 This fork adds remote desktop features carried over from [moonlight-android-RICHARD](https://github.com/richardlhsim-oss/moonlight-android-RICHARD):
@@ -27,6 +29,7 @@ This fork adds remote desktop features carried over from [moonlight-android-RICH
 - **Move overlays:** from the quick menu, drag the handle, scroll bar or mouse buttons to a new place, then tap one without dragging to save. Opacity and which overlays show are set in the input settings.
 - **Absolute touch gestures (default touch mode):** tap clicks exactly where you touch, one-finger drag pans the view at any time, double-tap selects a word like a mouse double click and dragging after it extends the selection,  press and hold right-clicks, two-finger drag scrolls the window or pane under the fingers (no click needed), pinch zooms.
 - **Three-finger tap** opens the soft keyboard and a **four-finger tap** opens the full-size on-screen keyboard, in every touch mode except multi-touch.
+- **Virtual display on by default:** Apollo/VibeShine creates a display at the resolution set in the app for each session and removes it when the session ends, so the PC returns to its own desktop resolution.
 - **End session on disconnect (on by default):** disconnecting also quits the app on the host, so Apollo/VibeShine restores the original display and resolution and runs the app's undo commands. Turn it off in the input settings to keep sessions running for a later reconnect.
 - **Text input mode (voice / swipe):** swipe typing, autocorrect and voice dictation type into the host. On by default; toggle with **Aa** on the modifier bar or from the game menu.
 

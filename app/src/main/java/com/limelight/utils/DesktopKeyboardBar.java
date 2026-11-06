@@ -52,6 +52,7 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
     private boolean barShowing;
     private boolean imeVisible;
     private boolean keyboardRequested;
+    private boolean imeShowing;
     private int imeHeight;
 
     public DesktopKeyboardBar(Activity activity, NvConnection conn, KeyboardTranslator keyboardTranslator,
@@ -289,7 +290,13 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         keyboardRequested = true;
     }
 
+    // Whether the soft keyboard is actually on screen
+    public boolean isImeShowing() {
+        return imeShowing;
+    }
+
     private void onImeStateChanged(boolean visible, int height) {
+        imeShowing = visible;
         if (!visible) {
             keyboardRequested = false;
         }

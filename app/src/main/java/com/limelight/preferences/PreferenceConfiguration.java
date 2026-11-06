@@ -121,7 +121,7 @@ public class PreferenceConfiguration {
     static final String DEFAULT_FPS = "60";
     private static final int DEFAULT_BITRATE_KBPS = 10000;
     private static final boolean DEFAULT_ENFORCE_DISPLAY_MODE = false;
-    private static final boolean DEFAULT_USE_VIRTUAL_DISPLAY = false;
+    private static final boolean DEFAULT_USE_VIRTUAL_DISPLAY = true;
     private static final String DEFAULT_VIDEO_SCALE_MODE = "stretch";
     private static final boolean DEFAULT_AUTO_INVERT_VIDEO_RESOLUTION = true;
     private static final int DEFAULT_RESOLUTION_SCALE_FACTOR = 100;
