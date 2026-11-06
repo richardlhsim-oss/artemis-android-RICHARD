@@ -635,4 +635,5 @@
     <string name="suffix_percent">%</string>
     <string name="title_checkbox_quit_on_disconnect">End session on disconnect</string>
     <string name="summary_checkbox_quit_on_disconnect">Quit the app on the host when disconnecting, so the host restores its display and resolution and runs its undo commands</string>
+    <string name="enable_ime_with_hard_keyboard">A physical keyboard is connected. Turn on \"Show on-screen keyboard\" (or \"Use on-screen keyboard\") here so the soft keyboard can still appear.</string>
 </resources>

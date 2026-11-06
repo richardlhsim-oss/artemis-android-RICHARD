@@ -3,6 +3,7 @@
 Changes in Optimus (desktop-mode branch) on top of Artemis.
 
 ## 2026-11-06
+- With a physical keyboard connected, if the soft keyboard is blocked by Android the app opens the system setting that allows it.
 - Virtual display is on by default, so the host streams at the app's resolution and returns to its own desktop resolution when the session ends.
 - The keyboard button shows or hides the soft keyboard explicitly instead of toggling it, so it reappears after the lock screen, dialogs or switching apps.
 

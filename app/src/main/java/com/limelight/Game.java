@@ -267,6 +267,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private int multiFingerMaxPointers;
     private long multiFingerStartTime;
     private static final int MULTI_FINGER_TAP_MAX_MS = 800;
+    private static final int HARD_KEYBOARD_CHECK_DELAY_MS = 1000;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -2009,6 +2010,24 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         else {
             inputManager.showSoftInput(streamView, InputMethodManager.SHOW_IMPLICIT);
         }
+
+        // Android suppresses the on-screen keyboard while a physical keyboard
+        // is connected unless the user allows it in system settings, which
+        // apps can't change. If it didn't appear, take the user there.
+        streamView.postDelayed(() -> {
+            Configuration config = getResources().getConfiguration();
+            boolean hardKeyboard = config.keyboard != Configuration.KEYBOARD_NOKEYS &&
+                    config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO;
+            if (hardKeyboard && keyboardBar != null && !keyboardBar.isImeShowing() &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Toast.makeText(this, R.string.enable_ime_with_hard_keyboard, Toast.LENGTH_LONG).show();
+                try {
+                    startActivity(new Intent(android.provider.Settings.ACTION_HARD_KEYBOARD_SETTINGS));
+                } catch (Exception e) {
+                    startActivity(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS));
+                }
+            }
+        }, HARD_KEYBOARD_CHECK_DELAY_MS);
     }
 
     private byte getLiTouchTypeFromEvent(MotionEvent event) {
