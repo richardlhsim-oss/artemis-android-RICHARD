@@ -2,6 +2,7 @@ package com.limelight.binding.input.touch;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,9 +13,10 @@ import com.limelight.utils.PanZoomHandler;
 
 /**
  * Absolute touch gestures for desktop use on a zoomable view:
- * tap clicks where the finger is, one-finger drag pans the view,
- * double-tap then drag holds the left button to select, press and hold
- * right-clicks, and two-finger drag scrolls.
+ * tap clicks where the finger is, one-finger drag pans the view, double-tap
+ * double-clicks, double-tap then drag presses and drags (moving windows and
+ * items, selecting text), press and hold right-clicks, and two-finger drag
+ * scrolls.
  */
 public class DirectTouchGestures {
     private static final int DOUBLE_TAP_TIME_MS = 300;
@@ -23,6 +25,10 @@ public class DirectTouchGestures {
     private static final float TAP_SLOP_DP = 12;
     private static final float DOUBLE_TAP_SLOP_DP = 40;
     private static final float SCROLL_SPEED_FACTOR = 3;
+    // A press within the host's double-click time (500 ms by default on
+    // Windows) of the previous click would be a double click, which on a title
+    // bar maximizes the window instead of moving it, so drags wait this long
+    private static final int DRAG_AFTER_CLICK_DELAY_MS = 550;
 
     private static final int STATE_IDLE = 0;
     private static final int STATE_PENDING = 1;
@@ -30,6 +36,10 @@ public class DirectTouchGestures {
     private static final int STATE_SELECTING = 3;
     private static final int STATE_SCROLLING = 4;
     private static final int STATE_CANCELLED = 5;
+    // Second press of a double tap, before it is known to be a tap or a drag
+    private static final int STATE_DOUBLE_PENDING = 6;
+    // Dragging after a double tap, waiting for the double-click time to pass
+    private static final int STATE_DRAG_WAIT = 7;
 
     private final NvConnection conn;
     private final View streamView;
@@ -49,6 +59,22 @@ public class DirectTouchGestures {
     private boolean longPressed;
     private Runnable pendingRelease;
     private byte pendingReleaseButton;
+    private long lastClickDownTime;
+
+    private final Runnable startDragRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (state != STATE_DRAG_WAIT) {
+                return;
+            }
+            // Press where the second tap started, then follow the finger
+            flushPendingRelease();
+            moveCursorTo(downX, downY);
+            conn.sendMouseButtonDown(buttonPrimary);
+            moveCursorTo(prevX, prevY);
+            state = STATE_SELECTING;
+        }
+    };
 
     private final Runnable longPressRunnable = new Runnable() {
         @Override
@@ -80,12 +106,9 @@ public class DirectTouchGestures {
                 longPressed = false;
                 if (event.getEventTime() - lastTapUpTime < DOUBLE_TAP_TIME_MS &&
                         Math.hypot(downX - lastTapX, downY - lastTapY) < doubleTapSlop) {
-                    // Second press of a double tap: the host sees a double click
-                    // (selecting the word) and holding extends the selection
-                    state = STATE_SELECTING;
-                    flushPendingRelease();
-                    moveCursorTo(lastTapX, lastTapY);
-                    conn.sendMouseButtonDown(buttonPrimary);
+                    // Second press of a double tap: a release makes it a double
+                    // click, a drag presses and drags
+                    state = STATE_DOUBLE_PENDING;
                 }
                 else {
                     state = STATE_PENDING;
@@ -96,6 +119,7 @@ public class DirectTouchGestures {
             case MotionEvent.ACTION_POINTER_DOWN:
                 endSelection();
                 handler.removeCallbacks(longPressRunnable);
+                handler.removeCallbacks(startDragRunnable);
                 if (event.getPointerCount() == 2) {
                     state = STATE_SCROLLING;
                     prevScrollY = (event.getY(0) + event.getY(1)) / 2;
@@ -125,6 +149,13 @@ public class DirectTouchGestures {
                     case STATE_PANNING:
                         panZoomHandler.panBy(x - prevX, y - prevY);
                         break;
+                    case STATE_DOUBLE_PENDING:
+                        if (Math.hypot(x - downX, y - downY) > tapSlop) {
+                            state = STATE_DRAG_WAIT;
+                            long wait = lastClickDownTime + DRAG_AFTER_CLICK_DELAY_MS - SystemClock.uptimeMillis();
+                            handler.postDelayed(startDragRunnable, Math.max(0, wait));
+                        }
+                        break;
                     case STATE_SELECTING:
                         moveCursorTo(x, y);
                         break;
@@ -148,7 +179,14 @@ public class DirectTouchGestures {
 
             case MotionEvent.ACTION_UP:
                 handler.removeCallbacks(longPressRunnable);
-                if (state == STATE_PENDING) {
+                handler.removeCallbacks(startDragRunnable);
+                if (state == STATE_DOUBLE_PENDING) {
+                    // Second click at the first tap's spot, so the host sees a double click
+                    moveCursorTo(lastTapX, lastTapY);
+                    click(buttonPrimary);
+                    lastTapUpTime = 0;
+                }
+                else if (state == STATE_PENDING) {
                     moveCursorTo(event.getX(), event.getY());
                     if (longPressed) {
                         click(buttonSecondary);
@@ -178,6 +216,7 @@ public class DirectTouchGestures {
 
     public void cancel() {
         handler.removeCallbacks(longPressRunnable);
+        handler.removeCallbacks(startDragRunnable);
         endSelection();
         state = STATE_IDLE;
     }
@@ -191,6 +230,7 @@ public class DirectTouchGestures {
     private void click(final byte button) {
         flushPendingRelease();
         conn.sendMouseButtonDown(button);
+        lastClickDownTime = SystemClock.uptimeMillis();
         // Released after a short delay for apps that poll button state
         pendingReleaseButton = button;
         pendingRelease = () -> {

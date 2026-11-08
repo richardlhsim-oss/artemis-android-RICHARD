@@ -3,6 +3,8 @@
 Changes in Optimus (desktop-mode branch) on top of Artemis.
 
 ## 2026-11-08
+- Backspace keeps working when pressed repeatedly in text input mode: the editor keeps recent text so the keyboard has something to delete.
+- Double-tap without moving double-clicks (e.g. maximize a window); double-tap then drag presses and drags to move windows and items or select text, waiting out the double-click time first.
 - Enter on the soft keyboard works in text input mode: line breaks are sent as Enter key presses instead of newline characters.
 - StreamHost host helper (tools/stream-host) combines the privacy screen and resolution switching in one executable; it replaces the separate StreamResolution helper.
 

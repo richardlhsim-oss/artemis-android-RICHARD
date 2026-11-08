@@ -144,11 +144,15 @@ public class StreamView extends SurfaceView {
         return new StreamTextInputConnection(this);
     }
 
-    // Mirrors IME edits to the host as deltas. The local editor only ever
-    // holds the word being composed: it is cleared after each commit and the
-    // IME is told the cursor position, otherwise IMEs (voice dictation in
+    // Mirrors IME edits to the host as deltas. The local editor keeps the
+    // recently typed text so the IME has something to delete (an empty editor
+    // makes IMEs stop sending backspaces), is trimmed when it grows, and every
+    // change is reported to the IME, otherwise IMEs (voice dictation in
     // particular) lose track of the editor state and stop responding.
     private class StreamTextInputConnection extends BaseInputConnection {
+        private static final int EDITOR_MAX_LENGTH = 400;
+        private static final int EDITOR_TRIMMED_LENGTH = 200;
+
         private final InputMethodManager imm;
         private String composingText = "";
 
@@ -182,7 +186,9 @@ public class StreamView extends SurfaceView {
         public boolean commitText(CharSequence text, int newCursorPosition) {
             applyDelta(text.toString());
             super.commitText(text, newCursorPosition);
-            resetEditor();
+            composingText = "";
+            trimEditor();
+            reportSelection();
             return true;
         }
 
@@ -190,8 +196,26 @@ public class StreamView extends SurfaceView {
         public boolean finishComposingText() {
             // The composed text has already been typed on the host
             super.finishComposingText();
-            resetEditor();
+            composingText = "";
+            reportSelection();
             return true;
+        }
+
+        @Override
+        public boolean sendKeyEvent(KeyEvent event) {
+            // Backspace sent as a key: the key itself reaches the host through
+            // the normal key path, so only keep the local editor in step
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_DEL &&
+                    composingText.isEmpty()) {
+                Editable editable = getEditable();
+                int cursor = Selection.getSelectionStart(editable);
+                if (cursor > 0) {
+                    editable.delete(cursor - 1, cursor);
+                }
+            }
+            boolean result = super.sendKeyEvent(event);
+            reportSelection();
+            return result;
         }
 
         @Override
@@ -225,12 +249,14 @@ public class StreamView extends SurfaceView {
             }
         }
 
-        private void resetEditor() {
+        // Keep the editor short; the IME is restarted because the positions it
+        // knows about shift when text is removed from the start
+        private void trimEditor() {
             Editable editable = getEditable();
-            removeComposingSpans(editable);
-            editable.clear();
-            composingText = "";
-            reportSelection();
+            if (editable.length() > EDITOR_MAX_LENGTH) {
+                editable.delete(0, editable.length() - EDITOR_TRIMMED_LENGTH);
+                imm.restartInput(StreamView.this);
+            }
         }
 
         private void reportSelection() {
