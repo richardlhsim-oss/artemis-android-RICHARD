@@ -131,8 +131,16 @@ public class DesktopKeyboardBar implements StreamView.TextInputCallbacks {
         for (int i = 0; i < deleteCount; i++) {
             sendKeys(KeyEvent.KEYCODE_DEL);
         }
-        if (!insertText.isEmpty()) {
-            conn.sendUtf8Text(insertText);
+        // A newline typed as text is not an Enter key press on the host, so
+        // send line breaks as real Enter keys
+        String[] lines = insertText.split("\\r?\\n", -1);
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                sendKeys(KeyEvent.KEYCODE_ENTER);
+            }
+            if (!lines[i].isEmpty()) {
+                conn.sendUtf8Text(lines[i]);
+            }
         }
     }
 

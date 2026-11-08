@@ -2,6 +2,10 @@
 
 Changes in Optimus (desktop-mode branch) on top of Artemis.
 
+## 2026-11-08
+- Enter on the soft keyboard works in text input mode: line breaks are sent as Enter key presses instead of newline characters.
+- StreamHost host helper (tools/stream-host) combines the privacy screen and resolution switching in one executable; it replaces the separate StreamResolution helper.
+
 ## 2026-11-06
 - Privacy screen while connected (on by default): sends the PrivacyScreen helper's on hotkey when a session starts and its off hotkey when it ends.
 - Virtual display is off by default again: the host resizes its real monitor to the resolution set in the app and restores it on disconnect.
