@@ -121,6 +121,47 @@ static class Native
     [DllImport("user32.dll")] public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint mods, uint vk);
     [DllImport("user32.dll")] public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     [DllImport("user32.dll")] public static extern bool SetProcessDpiAwarenessContext(IntPtr ctx);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DISPLAY_DEVICE
+    {
+        public int cb;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
+        public int StateFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceID;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern bool EnumDisplayDevices(string device, int index, ref DISPLAY_DEVICE dd, int flags);
+
+    // Name of the graphics adapter driving a display such as \\.\DISPLAY1
+    public static string AdapterName(string displayName)
+    {
+        var dd = new DISPLAY_DEVICE();
+        dd.cb = Marshal.SizeOf(typeof(DISPLAY_DEVICE));
+        for (int i = 0; EnumDisplayDevices(null, i, ref dd, 0); i++)
+        {
+            if (string.Equals(dd.DeviceName, displayName, StringComparison.OrdinalIgnoreCase)) return dd.DeviceString;
+            dd.cb = Marshal.SizeOf(typeof(DISPLAY_DEVICE));
+        }
+        return "";
+    }
+
+    // Virtual displays created by streaming hosts (Rubylight, Sunshine,
+    // Apollo/SudoVDA, Parsec and similar) are what the client sees; covering
+    // them would black out the stream on hosts that capture straight from
+    // their own display driver, where capture exclusion does not apply
+    public static bool IsVirtualDisplay(string displayName)
+    {
+        string adapter = AdapterName(displayName).ToLowerInvariant();
+        foreach (var marker in new[] { "virtual", "idd", "rubylight", "sunshine", "sudomaker", "parsec", "luminon", "spacedesk" })
+        {
+            if (adapter.Contains(marker)) return true;
+        }
+        return false;
+    }
 }
 
 class Overlay : Form
@@ -276,6 +317,11 @@ class Controller : Form
         var screens = Screen.AllScreens;
         foreach (var s in screens)
         {
+            if (Native.IsVirtualDisplay(s.DeviceName))
+            {
+                Log.Write("skipping virtual display " + s.DeviceName + " (" + Native.AdapterName(s.DeviceName) + ")");
+                continue;
+            }
             var o = new Overlay(s.Bounds, false);
             overlays.Add(o);
             o.Show();
